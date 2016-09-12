@@ -7,6 +7,31 @@
     <groupId>com.zhenya.server</groupId>
     <artifactId>com.zhenya.server</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>4.3.2.RELEASE</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>4.3.2.RELEASE</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.0-b01</version>
+        </dependency>
+
+
+    </dependencies>
+
+
 
 
 </project>
