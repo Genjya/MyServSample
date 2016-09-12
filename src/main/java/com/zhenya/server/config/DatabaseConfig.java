@@ -20,59 +20,61 @@ import java.io.InputStream;
 import java.util.Properties;
 
 @Configuration
-@EnableJpaRepositories("com.zhenya.server.repository")
+@EnableJpaRepositories("com.qoobico.remindme.server.repository")
 @EnableTransactionManagement
 @PropertySource("classpath:db.properties")
-@ComponentScan("com.zhenya.server")
+@ComponentScan("com.qoobico.remindme.server")
 public class DatabaseConfig {
 
     @Resource
     private Environment env;
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
         em.setPackagesToScan(env.getRequiredProperty("db.entity.package"));
-
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         em.setJpaProperties(getHibernateProperties());
-        return em;
-    }
 
-    public Properties getHibernateProperties() {
-        Properties properties = new Properties();
-        InputStream is = getClass().getClassLoader().getResourceAsStream("hibernate.properties");
-        try {
-            properties.load(is);
-            return properties;
-        } catch (IOException e) {
-            throw  new IllegalArgumentException("Cant find hibernate properties");
-        }
+        return em;
     }
 
     @Bean
     public DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
-        ds.setUrl(env.getProperty("db.url"));
-        ds.setDriverClassName(env.getProperty("db.driver"));
+        ds.setUrl(env.getRequiredProperty("db.url"));
+        ds.setDriverClassName(env.getRequiredProperty("db.driver"));
         ds.setUsername(env.getRequiredProperty("db.username"));
         ds.setPassword(env.getRequiredProperty("db.password"));
 
-        ds.setInitialSize(Integer.parseInt(env.getRequiredProperty("db.initial.size")));
-        ds.setMinIdle(Integer.parseInt(env.getRequiredProperty("db.minIdle")));
-        ds.setMaxIdle(Integer.parseInt(env.getRequiredProperty("db.maxIdle")));
-        ds.setTimeBetweenEvictionRunsMillis(Long.parseLong(env.getRequiredProperty("db.timeBetweenEvictionRunsMillis")));
-        ds.setMinEvictableIdleTimeMillis(Long.parseLong(env.getRequiredProperty("db.minEvictableIdleTimeMillis")));
-        ds.setTestOnBorrow(Boolean.parseBoolean(env.getRequiredProperty("db.testOnBarrow")));
-        ds.setValidationQuery(env.getRequiredProperty("db.valdationQuery"));
+        ds.setInitialSize(Integer.valueOf(env.getRequiredProperty("db.initialSize")));
+        ds.setMinIdle(Integer.valueOf(env.getRequiredProperty("db.minIdle")));
+        ds.setMaxIdle(Integer.valueOf(env.getRequiredProperty("db.maxIdle")));
+        ds.setTimeBetweenEvictionRunsMillis(Long.valueOf(env.getRequiredProperty("db.timeBetweenEvictionRunsMillis")));
+        ds.setMinEvictableIdleTimeMillis(Long.valueOf(env.getRequiredProperty("db.minEvictableIdleTimeMillis")));
+        ds.setTestOnBorrow(Boolean.valueOf(env.getRequiredProperty("db.testOnBorrow")));
+        ds.setValidationQuery(env.getRequiredProperty("db.validationQuery"));
+
         return ds;
     }
 
     @Bean
-    public PlatformTransactionManager platformTransactionManager() {
+    public PlatformTransactionManager transactionManager() {
         JpaTransactionManager manager = new JpaTransactionManager();
-        manager.setEntityManagerFactory(entityManagerFactoryBean().getObject());
+        manager.setEntityManagerFactory(entityManagerFactory().getObject());
         return manager;
+    }
+
+    public Properties getHibernateProperties() {
+        try {
+            Properties properties = new Properties();
+            InputStream is = getClass().getClassLoader().getResourceAsStream("hibernate.properties");
+            properties.load(is);
+
+            return properties;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Can't find 'hibernate.properties' in classpath!", e);
+        }
     }
 }
