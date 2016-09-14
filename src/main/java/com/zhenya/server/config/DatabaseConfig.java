@@ -1,6 +1,8 @@
 package com.zhenya.server.config;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -17,13 +19,14 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.Properties;
 
 @Configuration
-@EnableJpaRepositories("com.qoobico.remindme.server.repository")
+@EnableJpaRepositories("com.zhenya.server.repository")
 @EnableTransactionManagement
 @PropertySource("classpath:db.properties")
-@ComponentScan("com.qoobico.remindme.server")
+@ComponentScan("com.zhenya.server")
 public class DatabaseConfig {
 
     @Resource
@@ -36,7 +39,6 @@ public class DatabaseConfig {
         em.setPackagesToScan(env.getRequiredProperty("db.entity.package"));
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         em.setJpaProperties(getHibernateProperties());
-
         return em;
     }
 
@@ -55,7 +57,11 @@ public class DatabaseConfig {
         ds.setMinEvictableIdleTimeMillis(Long.valueOf(env.getRequiredProperty("db.minEvictableIdleTimeMillis")));
         ds.setTestOnBorrow(Boolean.valueOf(env.getRequiredProperty("db.testOnBorrow")));
         ds.setValidationQuery(env.getRequiredProperty("db.validationQuery"));
-
+        try {
+            ds.unwrap(Session.class).getFlushMode();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return ds;
     }
 
